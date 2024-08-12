@@ -18,10 +18,10 @@ const list = (req, res, next) => {
 const index = (req, res, next) => {
     const id = req.params.id;
 
-    Case.findOne({"_id": id}).then(obj => res.status(200).json)({
+    Case.findOne({"_id": id}).then(obj => res.status(200).json({
         message: `Case found with id: ${id}`,
         obj: obj
-    }).catch(ex => res.status(500).json({
+    })).catch(ex => res.status(500).json({
         message: "Cannot retrieve case",
         obj: ex
     }))
@@ -36,6 +36,8 @@ const create = (req, res, next) => {
         lastUpdateDate: lastUpdateDate,
         deadline: deadline
     });
+
+    console.log(myCase.caseDescription)
 
 
     myCase.save()
@@ -61,40 +63,36 @@ const update = (req, res, next) => {
     const id = req.params.id
 
     //Colect new data
-    let firstName = req.body.firstName;
-    let lastName = req.body.lastName;
-    let caseType = req.body.caseType;
-    let caseDescription = req.body.caseType;
+    const { firstName, lastName, initDate, caseState, caseType, caseDescription, imageReference } = req.body;
 
-    try{
-        validationCase(req.body);
-    }catch(error){
-        return res.status(400).json({
-            status: error,
-            message: 'Missing data'
-        })
-    };
+    console.log(req.body)
+
+    // try{
+    //     validationCase(req.body);
+    // }catch(error){
+    //     return res.status(400).json({
+    //         status: error,
+    //         message: 'Missing data'
+    //     })
+    // };
 
 
     //Create our updated object
-    const Case = new Case({
+    const lastUpdateDate = initDate;
+    const deadline = initDate;
+    const myCase = new Case({
         _id: id,
-        firstName: firstName,
-        lastName: lastName,
-        initDate: initDate,
+        ...req.body,
         lastUpdateDate: lastUpdateDate,
-        deadline: deadline,
-        caseState: caseState,
-        caseType: caseType,
-        caseDescription: caseDescription,
-        imageReference: imageReference
-    })
+        deadline: deadline
+    });
 
+    console.log(myCase.caseDescription)
 
     //Update method, we retrieve the id from the parameters
     //of the url, and give it the object we created with the 
     //data in our body
-    Case.updateOne({_id: req.params.id}, Case).then(obj => res.status(200).json({
+    Case.updateOne({_id: req.params.id}, myCase).then(obj => res.status(200).json({
         message: 'Object updated succesfully',
         obj: obj
     })).catch(error => res.status(500).json({
