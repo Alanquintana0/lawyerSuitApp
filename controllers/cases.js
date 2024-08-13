@@ -34,7 +34,8 @@ const create = (req, res, next) => {
     const myCase = new Case({
         ...req.body,
         lastUpdateDate: lastUpdateDate,
-        deadline: deadline
+        deadline: deadline,
+        imageReference: imageReference
     });
 
     console.log(myCase.caseDescription)
@@ -101,10 +102,27 @@ const update = (req, res, next) => {
     }))
 }
 
+const imageReference = (req, res) => {
+    let ficher = req.params.ficher;
+    let pathImg = "../images/casos/"+ficher;
+
+    fs.stat(pathImg, (error, exists) => {
+        if(exists){
+            return res.sendFile(path.resolve(pathImg))
+        }else{
+            return res.status(404).json({
+                status: 'Error',
+                message: 'The image does not exist.'
+            })
+        }
+    })
+}
+
 module.exports = {
     list,
     index,
     create,
     destroy,
-    update
+    update,
+    imageReference
 }
